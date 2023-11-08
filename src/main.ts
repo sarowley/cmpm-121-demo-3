@@ -16,8 +16,10 @@ const NULL_ISLAND = leaflet.latLng({
 });
 
 const GAMEPLAY_ZOOM_LEVEL = 19;
+const GAMEPLAY_MAX_ZOOM_LEVEL = 19;
+const GAMEPLAY_MIN_ZOOM_LEVEL = 0;
 const TILE_DEGREES = 1e-4;
-const NEIGHBORHOOD_SIZE = 1e-2;
+const NEIGHBORHOOD_SIZE = 1e-3;
 const PIT_SPAWN_PROBABILITY = 0.1;
 
 let spawnCheck = false;
@@ -28,10 +30,10 @@ const board = new Board(TILE_DEGREES, NEIGHBORHOOD_SIZE);
 const map = leaflet.map(mapContainer, {
   center: NULL_ISLAND,
   zoom: GAMEPLAY_ZOOM_LEVEL,
-  minZoom: GAMEPLAY_ZOOM_LEVEL,
-  maxZoom: GAMEPLAY_ZOOM_LEVEL,
+  minZoom: GAMEPLAY_MIN_ZOOM_LEVEL,
+  maxZoom: GAMEPLAY_MAX_ZOOM_LEVEL,
   zoomControl: true,
-  scrollWheelZoom: false,
+  scrollWheelZoom: true,
 });
 
 leaflet
@@ -64,6 +66,17 @@ sensorButton.addEventListener("click", () => {
       spawnCheck = false;
     }
   });
+});
+
+const northButton = document.querySelector("#north")!;
+northButton.addEventListener("click", () => {
+  console.log("whatup");
+  playerMarker.getLatLng().lat += 0.0001;
+  const markerLatLng = playerMarker.getLatLng();
+  //const markerLng = playerMarker.getLatLng().lng;
+  playerMarker.setLatLng(markerLatLng);
+  //playerMarker.addTo(map);
+  map.setView(playerMarker.getLatLng());
 });
 
 let points = 0;
