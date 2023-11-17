@@ -20,9 +20,7 @@ const GAMEPLAY_MAX_ZOOM_LEVEL = 19;
 const GAMEPLAY_MIN_ZOOM_LEVEL = 0;
 const TILE_DEGREES = 1e-4;
 const NEIGHBORHOOD_SIZE = 1e-3;
-const CACHE_SPAWN_PROBABILITY = 0.1;
-
-let spawnCheck = true;
+const CACHE_SPAWN_PROBABILITY = 0.05;
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 const board = new Board(TILE_DEGREES, NEIGHBORHOOD_SIZE);
@@ -46,12 +44,21 @@ leaflet
     //{
     maxZoom: 19,
     attribution:
+      // eslint-disable-next-line @typescript-eslint/quotes
       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   })
   .addTo(map);
 
-const playerPos = leaflet.latLng(MERRILL_CLASSROOM);
-const playerMarker = leaflet.marker(MERRILL_CLASSROOM);
+let playerMarker = leaflet.marker(MERRILL_CLASSROOM);
+
+if (localStorage.getItem("marker")) {
+  playerMarker.setLatLng(
+    JSON.parse(localStorage.getItem("marker")!) as leaflet.LatLng
+  );
+} else {
+  playerMarker = leaflet.marker(MERRILL_CLASSROOM);
+}
+
 moveMap();
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
@@ -59,19 +66,18 @@ playerMarker.addTo(map);
 function moveMap() {
   cacheHolder.forEach((cache) => cache.remove());
   cacheHolder = [];
-  spawnCache(playerPos.clone());
+  spawnCache(playerMarker.getLatLng().clone());
   map.setView(playerMarker.getLatLng());
+  storeLocation();
+  playerMarker.addTo(map);
 }
 
 const sensorButton = document.querySelector("#sensor")!;
 sensorButton.addEventListener("click", () => {
   navigator.geolocation.watchPosition((position) => {
-    playerPos.lat = position.coords.latitude;
-    playerPos.lng = position.coords.longitude;
-    if (spawnCheck) {
-      moveMap();
-      spawnCheck = false;
-    }
+    playerMarker.getLatLng().lat = position.coords.latitude;
+    playerMarker.getLatLng().lng = position.coords.longitude;
+    moveMap();
   });
 });
 
@@ -109,6 +115,15 @@ westButton.addEventListener("click", () => {
   const markerLatLng = playerMarker.getLatLng();
   playerMarker.setLatLng(markerLatLng);
   map.setView(playerMarker.getLatLng());
+});
+
+const resetButton = document.querySelector("#reset")!;
+resetButton.addEventListener("click", () => {
+  const resetPrompt = confirm("Reset all data?");
+  if (resetPrompt) {
+    localStorage.clear();
+    location.reload();
+  }
 });
 
 const statusPanel = document.querySelector<HTMLDivElement>("#statusPanel")!;
@@ -193,4 +208,14 @@ function spawnCache(pos: leaflet.LatLng) {
       makeCache(cell);
     }
   });
+}
+
+function storeLocation() {
+  localStorage.setItem(
+    "marker",
+    JSON.stringify({
+      lat: playerMarker.getLatLng().lat,
+      lng: playerMarker.getLatLng().lng,
+    })
+  );
 }

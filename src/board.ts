@@ -42,20 +42,6 @@ export class Board {
   }
 
   getCellsNearPoint(point: leaflet.LatLng): Cell[] {
-    //   const originCell = this.getCellForPoint(point);
-    //   const resultCells: Cell[] = [
-    //     { i: originCell.i + 1, j: originCell.j + 1 },
-    //     { i: originCell.i - 1, j: originCell.j - 1 },
-    //     { i: originCell.i + 1, j: originCell.j },
-    //     { i: originCell.i, j: originCell.j + 1 },
-    //     { i: originCell.i - 1, j: originCell.j },
-    //     { i: originCell.i, j: originCell.j - 1 },
-    //     { i: originCell.i + 1, j: originCell.j - 1 },
-    //     { i: originCell.i - 1, j: originCell.j + 1 },
-    //   ];
-    //   return resultCells;
-    // }
-
     const originCell = this.getCellForPoint(point);
     const resultCells: Cell[] = [];
     for (
